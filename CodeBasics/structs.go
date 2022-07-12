@@ -2,6 +2,11 @@ package main
 
 import "fmt"
 
+type UintIncrementable interface {
+	Incr(i uint) uint
+	ToString() string
+}
+
 type City struct {
 	Name string
 	Pop  uint
@@ -25,8 +30,13 @@ func (city City) ToString() string {
 	return fmt.Sprintf("%s (pop: %d)", city.Name, city.Pop)
 }
 
+// implementation of interface Stringer
+func (city City) String() string {
+	return city.ToString()
+}
+
 // receiver as a pointer
-func (city *City) IncrPop(delta uint) uint {
+func (city *City) Incr(delta uint) uint {
 	city.Pop += delta
 	return city.Pop
 }
@@ -63,7 +73,7 @@ func structBasics() {
 	fmt.Println(city3.ToString())
 
 	// call with receiver as a pointer : implicit
-	newPop := city3.IncrPop(50000)
+	newPop := city3.Incr(50000)
 	city3.Display()
 	fmt.Println("New population:", newPop)
 
@@ -71,7 +81,7 @@ func structBasics() {
 	fmt.Println("New population (2):", newPop, city3.ToString())
 
 	var cityPtr *City = &city2
-	newPop = cityPtr.IncrPop(7)
+	newPop = cityPtr.Incr(7)
 	fmt.Println("New population (3):", newPop, cityPtr.ToString())
 
 	var ptr **City
@@ -121,7 +131,86 @@ func addFunctionality() {
 	fmt.Println(z)
 }
 
+type MyUint uint
+
+func (myuint *MyUint) Incr(i uint) uint {
+	*myuint += MyUint(i)
+	return uint(*myuint)
+}
+
+func (myuint *MyUint) ToString() string {
+	return fmt.Sprintf("%d", *myuint)
+}
+
+func doSomethingWithUintIncrementable(data UintIncrementable) {
+	data.Incr(111)
+	fmt.Println(data.ToString())
+
+	fmt.Printf("Data interface: %v %T\n", data, data)
+	// downcasting
+	// c := data.(*City) // ok if you are sure tho have a *City object
+	c, ok := data.(*City) // if not ok, c= nil
+	fmt.Println("After downcasting:", c, ok)
+	if ok {
+		fmt.Println(c, c.Name, c.Pop)
+	}
+
+	switch v := data.(type) {
+	case *City:
+		fmt.Println("City:", v, v.Name, v.Pop)
+	case *MyUint:
+		fmt.Println("MyUint", v, *v, (*v)*2)
+	default:
+		fmt.Printf("Type inconnu: %v %T", v, v)
+	}
+}
+
+func testUintIncrementable() {
+	var i UintIncrementable
+	city := City{"Lyon", 1500000}
+	i = &city
+	i.Incr(50)
+	fmt.Println(city)
+	doSomethingWithUintIncrementable(&city)
+	fmt.Println(city)
+	i = &City{"Toulouse", 1300000}
+	i.Incr(1)
+	doSomethingWithUintIncrementable(i)
+
+	myuint := MyUint(12)
+	i = &myuint
+	doSomethingWithUintIncrementable(i)
+}
+
+func testStringer() {
+	city := City{"Lyon", 1500000}
+	// print with String() method from interface Stringer
+	fmt.Println(city, &city)
+}
+
+func testNew() {
+	// new : allocate only
+	var city *City = new(City)
+	fmt.Println(city, city.Name)
+
+	// &City{..} : allocate and initialize fields
+	city = &City{"Lyon", 1500000}
+	fmt.Println(city, city.Name)
+
+	// panic(city)
+
+	var intptr = new(int)
+	fmt.Println(*intptr)
+	*intptr = 12
+	*intptr += 2
+	(*intptr)++
+	fmt.Println(*intptr)
+}
+
 func main() {
 	// structBasics()
-	addFunctionality()
+	// addFunctionality()
+	// testUintIncrementable()
+	// testStringer()
+	testNew()
 }

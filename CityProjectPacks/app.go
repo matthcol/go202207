@@ -17,7 +17,16 @@ func testNew() {
 
 }
 
+func f(a ...int) {
+	fmt.Println("All args", a)
+	for _, v := range a {
+		fmt.Println("-", v)
+	}
+}
+
 func main() {
-	testNew()
-	persistence.TestDrivers()
+	// testNew()
+	// persistence.TestDrivers()
+	persistence.TestConnection()
+	// f(1, 2, 3)
 }

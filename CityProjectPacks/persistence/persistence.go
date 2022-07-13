@@ -1,5 +1,7 @@
 package persistence
 
+// https://pkg.go.dev/database/sql
+
 import (
 	"cityapp/city"
 	"database/sql"
@@ -16,8 +18,8 @@ const (
 	user     string = "ucity"
 	password string = "password"
 
-	sqlInsert = "INSERT INTO cities (name,pop) VALUES ($1,$2)"
-	sqlSelect = `SELECT id, name, pop 
+	sqlInsert string = "INSERT INTO cities (name,pop) VALUES ($1,$2)"
+	sqlSelect string = `SELECT id, name, pop 
 	FROM cities
 	WHERE pop > $1`
 )

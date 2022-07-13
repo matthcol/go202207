@@ -1,8 +1,8 @@
 package main
 
 import (
+	"cityapp/backup"
 	"cityapp/city"
-	"cityapp/persistence"
 	"fmt"
 )
 
@@ -27,6 +27,8 @@ func f(a ...int) {
 func main() {
 	// testNew()
 	// persistence.TestDrivers()
-	persistence.TestConnection()
+	// persistence.TestConnection()
 	// f(1, 2, 3)
+	// backup.TestPaths()
+	backup.TestOS()
 }

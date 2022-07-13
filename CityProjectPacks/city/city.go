@@ -3,8 +3,8 @@ package city
 import "fmt"
 
 type City struct {
-	Name string
-	Pop  uint
+	Name string `json:"name"`
+	Pop  uint   `json:"pop"`
 }
 
 func (city City) ToString() string {

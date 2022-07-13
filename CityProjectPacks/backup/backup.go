@@ -2,10 +2,13 @@ package backup
 
 import (
 	"cityapp/city"
+	"errors"
 	"fmt"
 	"log"
 	"os"
 	"path"
+	"strconv"
+	"strings"
 )
 
 func TestPaths() {
@@ -62,7 +65,34 @@ func ReadCities(filename string) []city.City {
 	return []city.City{}
 }
 
-func ReadCities2(filename string) []city.City {
+func ParseCities(text string) ([]city.City, error) {
+	lines := strings.Split(text, "\n")
+	fmt.Println(len(lines), lines)
+	var err error = nil
+	cities := []city.City{}
+	for _, line := range lines {
+		words := strings.Fields(line)
+
+		switch n := len(words); n {
+		case 0:
+			continue
+		case 3:
+			name := words[0]
+			popStr := strings.TrimSuffix(words[2], ")")
+			pop, err := strconv.Atoi(popStr)
+			if err != nil {
+				break
+			}
+			cities = append(cities, city.City{Name: name, Pop: uint(pop)})
+		default:
+			err = errors.New("City format error:" + line)
+			break
+		}
+	}
+	return cities, err
+}
+
+func ReadCities2(filename string) ([]city.City, error) {
 	// NB : os.ReadFile, f.Read
 	f, err := os.Open(filename)
 	if err != nil {
@@ -70,13 +100,18 @@ func ReadCities2(filename string) []city.City {
 	}
 	defer f.Close()
 	buffer := make([]byte, 1024)
+	var builder strings.Builder
 	for n, err := f.Read(buffer); n > 0; n, err = f.Read(buffer) {
 		if err != nil {
 			log.Fatal(err)
 		}
-		fmt.Printf("%d bytes read: %s\n", n, buffer[:n])
+		// fmt.Printf("%d bytes read: %s\n", n, buffer[:n])
+		builder.Write(buffer[:n])
 	}
-	return []city.City{}
+	text := builder.String()
+	fmt.Println(text)
+	cities, err := ParseCities((text))
+	return cities, err
 }
 
 func TestReadWriteCities() {
@@ -86,6 +121,7 @@ func TestReadWriteCities() {
 		{Name: "Pau", Pop: 100000},
 	}
 	WriteCities("cities.txt", cities)
-	cities2 := ReadCities2("cities.txt")
+	cities2, err := ReadCities2("cities.txt")
 	fmt.Println("Cities read from file:", cities2)
+	log.Println(err)
 }

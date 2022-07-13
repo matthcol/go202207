@@ -30,5 +30,6 @@ func main() {
 	// persistence.TestConnection()
 	// f(1, 2, 3)
 	// backup.TestPaths()
-	backup.TestOS()
+	// backup.TestOS()
+	backup.TestReadWriteCities()
 }

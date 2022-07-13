@@ -70,11 +70,12 @@ func ReadCities2(filename string) []city.City {
 	}
 	defer f.Close()
 	buffer := make([]byte, 1024)
-	n, err := f.Read(buffer)
-	if err != nil {
-		log.Fatal(err)
+	for n, err := f.Read(buffer); n > 0; n, err = f.Read(buffer) {
+		if err != nil {
+			log.Fatal(err)
+		}
+		fmt.Printf("%d bytes read: %s\n", n, buffer[:n])
 	}
-	fmt.Printf("%d bytes read: %s\n", n, buffer[:n])
 	return []city.City{}
 }
 
